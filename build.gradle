@@ -1,0 +1,83 @@
+plugins {
+	id 'org.springframework.boot' version '2.3.4.RELEASE'
+	id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+	id 'java-library'
+	id 'maven-publish'
+}
+
+group = 'com.github.labcabrera'
+version = version
+sourceCompatibility = '11'
+
+ext {
+	set('nexusUsername',                System.getenv('NEXUS_USERNAME'))
+	set('nexusPassword',                System.getenv('NEXUS_PASSWORD'))
+	set('nexusUrl',                     System.getenv('NEXUS_URL'))
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'com.github.rutledgepaulv:rest-query-engine:0.7.1'
+
+	compileOnly 'org.springframework.boot:spring-boot-starter-data-mongodb'
+
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+	testImplementation 'org.springframework.cloud:spring-cloud-stream-test-support'
+	testImplementation 'org.springframework.cloud:spring-cloud-stream-binder-test'
+}
+
+bootJar {
+	enabled = false
+}
+
+test {
+	useJUnitPlatform()
+}
+
+task sourcesJar(type: Jar) {
+	from sourceSets.main.allJava
+	classifier = 'sources'
+}
+
+jar {
+	enabled = true
+}
+
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			groupId = group
+			artifactId = project.name
+			version = version
+			from components.java
+			artifact sourcesJar
+		}
+	}
+	repositories {
+		maven {
+			credentials {
+				username nexusUsername
+				password nexusPassword
+			}
+			if (project.version.endsWith('-SNAPSHOT')) {
+				url "${nexusUrl}/repository/maven-snapshots"
+			} else {
+				url "${nexusUrl}/repository/maven-releases"
+			}
+		}
+	}		
+}
