@@ -16,8 +16,17 @@ public class RsqlService {
 	@Autowired
 	private RsqlCriteriaBuilder criteriaBuilder;
 
+	public <E> Page<E> find(String rsql, Pageable pageable, MongoTemplate mongoTemplate, Class<E> clazz) {
+		Criteria criteria = criteriaBuilder.build(rsql, clazz);
+		return find(criteria, pageable, mongoTemplate, clazz);
+	}
+
 	public <E> Page<E> find(String rsql, Pageable pageable, Authentication auth, MongoTemplate mongoTemplate, Class<E> clazz) {
 		Criteria criteria = criteriaBuilder.build(rsql, auth, clazz);
+		return find(criteria, pageable, mongoTemplate, clazz);
+	}
+
+	private <E> Page<E> find(Criteria criteria, Pageable pageable, MongoTemplate mongoTemplate, Class<E> clazz) {
 		Query query = new Query(criteria);
 		long total = mongoTemplate.count(new Query(criteria), clazz);
 		List<E> list = mongoTemplate.find(query.with(pageable), clazz);
