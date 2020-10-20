@@ -18,7 +18,8 @@ public class RsqlCriteriaBuilder {
 	private RsqlParser rsqlParser;
 
 	public Criteria build(String rsql, Class<?> clazz) {
-		return rsqlParser.apply(rsql, clazz);
+		Criteria criteria = rsqlParser.apply(rsql, clazz);
+		return criteria != null ? criteria : new Criteria();
 	}
 
 	public Criteria build(String rsql, Authentication auth, Class<?> clazz) {
