@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.github.labcabrera.hodei.rsql.parser.RsqlParser;
 import com.github.labcabrera.hodei.rsql.service.RsqlCriteriaBuilder;
+import com.github.labcabrera.hodei.rsql.service.RsqlService;
 
 @Configuration
 public class HodeiRsqlAutoConfiguration {
@@ -22,4 +23,9 @@ public class HodeiRsqlAutoConfiguration {
 		return new RsqlCriteriaBuilder();
 	}
 
+	@Bean
+	@ConditionalOnMissingBean(RsqlService.class)
+	RsqlService rsqlService() {
+		return new RsqlService();
+	}
 }
